@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ExpenseTracker.Api.Models;
 using Microsoft.OpenApi.Models;
+using ExpenseTracker.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -85,12 +86,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-builder.Services.AddAuthorization();
-
 app.UseHttpsRedirection();
-
+app.UseMiddleware<GlobalExceptionMiddleware>(); // Global Exception Handling Middleware
+app.UseAuthentication();
 app.UseAuthorization();
-
+//builder.Services.AddAuthorization();
 app.MapControllers();
 
 app.Run();

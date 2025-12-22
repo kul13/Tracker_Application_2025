@@ -16,7 +16,11 @@ namespace ExpenseTracker.Api.Services.Repository
 
         public async Task<List<Expense>> GetAllAsync()
         {
-            return await _context.Expenses.ToListAsync();
+            return await _context.Expenses
+            .Include(e => e.User)
+            .Include(e => e.Category)
+            .Include(e => e.Item)
+            .ToListAsync();
         }
         public async Task AddAsync(Expense expense)
         {
@@ -25,18 +29,22 @@ namespace ExpenseTracker.Api.Services.Repository
         }
         public async Task<Expense?> GetByIdAsync(int id)
         {
-            return await _context.Expenses.FindAsync(id);
+            return await _context.Expenses
+             .Include(e => e.Category)
+             .Include(e => e.Item)
+             .FirstOrDefaultAsync(e => e.Id == id);
         }
         public async Task<bool> UpdateAsync(int id, Expense expense)
         {
             var existingExpense = await _context.Expenses.FindAsync(id);
-            if (existingExpense == null)
-            {
-                return false;
-            }
+            if (existingExpense == null) return false;
+
             existingExpense.Amount = expense.Amount;
             existingExpense.Date = expense.Date;
-            existingExpense.Category = expense.Category;
+            existingExpense.Notes = expense.Notes;
+            existingExpense.CategoryId = expense.CategoryId;
+            existingExpense.ItemId = expense.ItemId;
+
             await _context.SaveChangesAsync();
             return true;
         }
@@ -56,7 +64,7 @@ namespace ExpenseTracker.Api.Services.Repository
             await _context.Expenses.AddRangeAsync(expenses);
             await _context.SaveChangesAsync();
         }
-        public async Task<List<Expense>> GetFilteredAsync(DateTime? fromDate, DateTime? toDate, string? category, int? month, int? year)
+        public async Task<List<Expense>> GetFilteredAsync(DateTime? fromDate, DateTime? toDate, int? categoryId, int? month, int? year)
         {
             var query = _context.Expenses.AsQueryable();
             if (fromDate.HasValue)
@@ -67,9 +75,9 @@ namespace ExpenseTracker.Api.Services.Repository
             {
                 query = query.Where(e => e.Date <= toDate.Value);
             }
-            if (!string.IsNullOrEmpty(category))
+             if (categoryId.HasValue)
             {
-                query = query.Where(e => e.Category == category);
+                query = query.Where(e => e.CategoryId == categoryId);
             }
             if (month.HasValue)
             {

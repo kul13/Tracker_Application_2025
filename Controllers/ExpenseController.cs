@@ -27,7 +27,19 @@ namespace ExpenseTracker.Api.Controllers
         public async Task<IActionResult> GetAllExpenses()
         {
             var expenses = await _service.GetAllAsync();
-            return Ok(expenses);
+            var response = expenses.Select(e => new ExpenseCreateDto
+            {
+                Id = e.Id,
+                Amount = e.Amount,
+                Date = e.Date,
+                Notes = e.Notes,
+                CategoryId = e.CategoryId,
+                ItemId = e.ItemId,
+                CategoryName = e.Category!.Name,
+                ItemName = e.Item!.Name
+            });
+
+            return Ok(response);
         }
         [HttpPost]
         public async Task<IActionResult> AddExpense([FromBody] ExpenseCreateDto dtos)
@@ -42,7 +54,8 @@ namespace ExpenseTracker.Api.Controllers
             {
                 Amount = dtos.Amount,
                 Date = dtos.Date,
-                Category = dtos.Category,
+                CategoryId = dtos.CategoryId,   // updated
+                ItemId = dtos.ItemId,
                 Notes = dtos.Notes,
                 UserId = userId
             };
@@ -56,7 +69,8 @@ namespace ExpenseTracker.Api.Controllers
             {
                 Amount = dtos.Amount,
                 Date = dtos.Date,
-                Category = dtos.Category,
+                CategoryId = dtos.CategoryId,
+                ItemId = dtos.ItemId,
                 Notes = dtos.Notes
             };
             var isUpdated = await _service.UpdateAsync(id, expense);
@@ -79,6 +93,11 @@ namespace ExpenseTracker.Api.Controllers
         [HttpPost("bulk")]
         public async Task<IActionResult> AddBulkExpenses([FromBody] List<ExpenseCreateDto> dtos)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
+                        ?? User.FindFirst(JwtRegisteredClaimNames.Sub);
+            if (userIdClaim == null)
+                return Unauthorized();
+            int userId = int.Parse(userIdClaim.Value);
 
             if (dtos == null || !dtos.Any())
                 return BadRequest("Expense list cannot be empty");
@@ -87,8 +106,10 @@ namespace ExpenseTracker.Api.Controllers
             {
                 Amount = dto.Amount,
                 Date = dto.Date,
-                Category = dto.Category,
-                Notes = dto.Notes
+                CategoryId = dto.CategoryId,
+                ItemId = dto.ItemId,
+                Notes = dto.Notes,
+                UserId = userId
             }).ToList();
 
             await _service.AddBulkAsync(expenses);
@@ -105,7 +126,7 @@ namespace ExpenseTracker.Api.Controllers
             var expenses = await _service.GetFilteredAsync(
                          filteringDTOs.FromDate,
                          filteringDTOs.ToDate,
-                         filteringDTOs.Category,
+                         filteringDTOs.CategoryId,
                          filteringDTOs.Month,
                          filteringDTOs.Year
             );
@@ -114,12 +135,12 @@ namespace ExpenseTracker.Api.Controllers
                 Id = e.Id,
                 Amount = e.Amount,
                 Date = e.Date,
-                Category = e.Category,
+                CategoryId = e.CategoryId,
                 Notes = e.Notes
             });
 
             return Ok(response);
         }
-
+   
     }
 }

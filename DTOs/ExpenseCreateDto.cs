@@ -11,12 +11,16 @@ namespace ExpenseTracker.Api.DTOs
         [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than zero")]
         public decimal Amount { get; set; }
 
-        [Required]
-        [MaxLength(50)]
-        public string? Category { get; set; }
 
         [MaxLength(200)]
         public string? Notes { get; set; }
         public int Id { get; internal set; }
+
+        public int CategoryId { get; set; }
+        public int ItemId { get; set; }
+
+        public string? CategoryName { get; set; }
+        public string? ItemName { get; set; }
+
     }
 }

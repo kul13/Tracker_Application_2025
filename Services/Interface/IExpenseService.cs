@@ -10,7 +10,7 @@ namespace ExpenseTracker.Api.Services.Interface
         Task<bool> UpdateAsync(int id, Expense expense);
         Task<bool> DeleteAsync(int id);
         Task AddBulkAsync(List<Expense> expenses);
-        Task<List<Expense>> GetFilteredAsync( DateTime? fromDate,DateTime? toDate,string? category,int? month,int? year);
+        Task<List<Expense>> GetFilteredAsync( DateTime? fromDate,DateTime? toDate,int? categoryId,int? month,int? year);
 
     }
 }

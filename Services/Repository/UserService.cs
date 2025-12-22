@@ -19,7 +19,7 @@ namespace ExpenseTracker.Api.Services.Repository
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         {
             _context = context;
-            _configuration = configuration;
+            _configuration = configuration; 
         }
 
         public async Task<User> RegisterAsync(RegisterDto dto)
