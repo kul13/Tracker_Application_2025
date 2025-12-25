@@ -19,26 +19,28 @@ namespace ExpenseTracker.Api.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Expense -> Category
+            modelBuilder.Entity<Expense>()
+        .Property(e => e.Amount)
+        .HasPrecision(18, 2); // fix decimal warning
+
+            // Category → Expense: allow cascade delete
             modelBuilder.Entity<Expense>()
                 .HasOne(e => e.Category)
                 .WithMany()
                 .HasForeignKey(e => e.CategoryId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Expense -> Item
+            // Item → Expense: NO CASCADE (SetNull or Restrict)
             modelBuilder.Entity<Expense>()
                 .HasOne(e => e.Item)
                 .WithMany()
                 .HasForeignKey(e => e.ItemId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.NoAction); // or DeleteBehavior.Restrict
 
-            // Item -> Category
+            // Optional: unique item per category
             modelBuilder.Entity<Item>()
-                .HasOne(i => i.Category)
-                .WithMany(c => c.Items)
-                .HasForeignKey(i => i.CategoryId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasIndex(i => new { i.CategoryId, i.Name })
+                .IsUnique();
         }
     }
 }
