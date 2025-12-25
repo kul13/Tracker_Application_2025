@@ -3,12 +3,14 @@ using ExpenseTracker.Api.Services.Interface;
 using Microsoft.Identity.Client;
 using ExpenseTracker.Api.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace ExpenseTracker.Api.Services.Repository
 {
-    public class ExpenseService : IExpenseService
+    public class ExpenseService : IExpenseService 
     {
         public readonly AppDbContext _context;
+      
         public ExpenseService(AppDbContext context)
         {
             _context = context;
@@ -22,10 +24,33 @@ namespace ExpenseTracker.Api.Services.Repository
             .Include(e => e.Item)
             .ToListAsync();
         }
-        public async Task AddAsync(Expense expense)
+        public async Task AddAsync(Expense expense , string? ItemName)
         {
-            await _context.Expenses.AddAsync(expense);
+            if (!string.IsNullOrWhiteSpace(ItemName))
+            {
+                var item = await _context.Items.FirstOrDefaultAsync(i =>
+                    i.CategoryId == expense.CategoryId &&
+                    i.Name == ItemName);
+
+                if (item == null)
+                {
+                    item = new Item
+                    {
+                        Name = ItemName,
+                        CategoryId = expense.CategoryId
+                    };
+
+                    _context.Items.Add(item);
+                    await _context.SaveChangesAsync();
+                }
+
+                expense.ItemId = item.Id;
+            }
+
+            _context.Expenses.Add(expense);
             await _context.SaveChangesAsync();
+            //await _context.Expenses.AddAsync(expense);
+            //await _context.SaveChangesAsync();
         }
         public async Task<Expense?> GetByIdAsync(int id)
         {
@@ -90,5 +115,12 @@ namespace ExpenseTracker.Api.Services.Repository
             return await query.ToListAsync();
         }
 
+        public async Task<List<Category>> GetAllCategoriesAsync()
+        {
+            var categories = await _context.Categories
+                .Include(c => c.Items)
+                .ToListAsync();
+            return( categories);
+        }
     }
 }

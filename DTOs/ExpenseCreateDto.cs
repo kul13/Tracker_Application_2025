@@ -4,6 +4,7 @@ namespace ExpenseTracker.Api.DTOs
 {
     public class ExpenseCreateDto
     {
+        public int Id { get; internal set; }
         [Required]
         public DateTime Date { get; set; }
 
@@ -14,10 +15,9 @@ namespace ExpenseTracker.Api.DTOs
 
         [MaxLength(200)]
         public string? Notes { get; set; }
-        public int Id { get; internal set; }
 
         public int CategoryId { get; set; }
-        public int ItemId { get; set; }
+        public int? ItemId { get; set; }
 
         public string? CategoryName { get; set; }
         public string? ItemName { get; set; }
