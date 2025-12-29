@@ -12,5 +12,9 @@ namespace ExpenseTracker.Api.Services.Interface
         Task AddBulkAsync(List<Expense> expenses);
         Task<List<Expense>> GetFilteredAsync( DateTime? fromDate,DateTime? toDate,int? categoryId,int? month,int? year);
 
+        Task <List<Category>> GetAllCategoriesAsync();
+        Task<List<Item>> GetByCategoryIdAsync(int categoryId);
+
+
     }
 }
