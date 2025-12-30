@@ -138,6 +138,7 @@ namespace ExpenseTracker.Api.Controllers
 
             return Ok(response);
         }
+
         [HttpGet("categories")]
         public async Task<IActionResult> GetAllCategories()
         {
@@ -145,5 +146,11 @@ namespace ExpenseTracker.Api.Controllers
             return Ok(categories);
         }
 
+        [HttpGet("items/{categoryId}")]
+        public async Task<IActionResult> GetItemsByCategoryId(int categoryId)
+        {
+            var items = await _service.GetByCategoryIdAsync(categoryId);
+            return Ok(items);
+        }
     }
 }

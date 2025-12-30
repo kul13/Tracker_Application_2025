@@ -115,12 +115,21 @@ namespace ExpenseTracker.Api.Services.Repository
             return await query.ToListAsync();
         }
 
-        public async Task<List<Category>> GetAllCategoriesAsync()
+        public async  Task<List<Category>> GetAllCategoriesAsync()
         {
-            var categories = await _context.Categories
-                .Include(c => c.Items)
+            return await _context.Categories
+            .Include(c => c.Items)
+            .ToListAsync();
+
+        }
+
+        public async Task<List<Item>> GetByCategoryIdAsync(int categoryId)
+        {
+            return await _context.Items
+                .AsNoTracking()
+                .Where(i => i.CategoryId == categoryId)
+                .OrderBy(i => i.Name)
                 .ToListAsync();
-            return( categories);
         }
     }
 }
