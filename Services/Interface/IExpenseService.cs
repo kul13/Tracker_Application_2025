@@ -5,7 +5,7 @@ namespace ExpenseTracker.Api.Services.Interface
     public interface IExpenseService
     {
         Task<List<Expense>> GetAllAsync();
-        Task AddAsync(Expense expense);
+        Task AddAsync(Expense expense, string? ItemName);
         Task<Expense?> GetByIdAsync(int id);
         Task<bool> UpdateAsync(int id, Expense expense);
         Task<bool> DeleteAsync(int id);
@@ -17,4 +17,7 @@ namespace ExpenseTracker.Api.Services.Interface
 
 
     }
+
+   
+   
 }

@@ -29,7 +29,6 @@ namespace ExpenseTracker.Api.Controllers
             var expenses = await _service.GetAllAsync();
             var response = expenses.Select(e => new ExpenseCreateDto
             {
-                Id = e.Id,
                 Amount = e.Amount,
                 Date = e.Date,
                 Notes = e.Notes,
@@ -55,11 +54,10 @@ namespace ExpenseTracker.Api.Controllers
                 Amount = dtos.Amount,
                 Date = dtos.Date,
                 CategoryId = dtos.CategoryId,   // updated
-                ItemId = dtos.ItemId,
                 Notes = dtos.Notes,
                 UserId = userId
             };
-            await _service.AddAsync(expense);
+            await _service.AddAsync(expense,dtos.ItemName);
             return Ok("Expense Added");
         }
         [HttpPut("{id}")]
@@ -67,10 +65,10 @@ namespace ExpenseTracker.Api.Controllers
         {
             var expense = new Expense
             {
+                Id = id,
                 Amount = dtos.Amount,
                 Date = dtos.Date,
                 CategoryId = dtos.CategoryId,
-                ItemId = dtos.ItemId,
                 Notes = dtos.Notes
             };
             var isUpdated = await _service.UpdateAsync(id, expense);
@@ -107,7 +105,6 @@ namespace ExpenseTracker.Api.Controllers
                 Amount = dto.Amount,
                 Date = dto.Date,
                 CategoryId = dto.CategoryId,
-                ItemId = dto.ItemId,
                 Notes = dto.Notes,
                 UserId = userId
             }).ToList();
