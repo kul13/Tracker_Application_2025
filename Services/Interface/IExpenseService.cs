@@ -1,4 +1,5 @@
-﻿using ExpenseTracker.Api.Models;
+﻿using ExpenseTracker.Api.DTOs;
+using ExpenseTracker.Api.Models;
 
 namespace ExpenseTracker.Api.Services.Interface
 {
@@ -13,7 +14,7 @@ namespace ExpenseTracker.Api.Services.Interface
         Task<List<Expense>> GetFilteredAsync( DateTime? fromDate,DateTime? toDate,int? categoryId,int? month,int? year);
 
         Task <List<Category>> GetAllCategoriesAsync();
-        Task<List<Item>> GetByCategoryIdAsync(int categoryId);
+        Task<List<ItemDto>> GetByCategoryIdAsync(int categoryId);
 
 
     }

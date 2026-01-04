@@ -105,8 +105,11 @@ namespace ExpenseTracker.Api.Controllers
                 Amount = dto.Amount,
                 Date = dto.Date,
                 CategoryId = dto.CategoryId,
+                ItemId = dto.ItemId,   
                 Notes = dto.Notes,
-                UserId = userId
+                UserId = userId,
+                TotalAmount = dto.TotalAmount
+
             }).ToList();
 
             await _service.AddBulkAsync(expenses);

@@ -19,6 +19,7 @@ namespace ExpenseTracker.Api.DTOs
         public int CategoryId { get; set; }
         public int? ItemId { get; set; }
 
+        public decimal TotalAmount { get; set; }
         public string? CategoryName { get; set; }
         public string? ItemName { get; set; }
 

@@ -10,7 +10,7 @@ namespace ExpenseTracker.Api.Models
         public decimal Amount { get; set; }
         public string? Notes { get; set; }
 
-
+        public decimal TotalAmount { get; set; }
         public int UserId { get; set; }     // Foreign Key
 
         //Navigation Property

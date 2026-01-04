@@ -15,6 +15,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:3000", " http://192.168.1.8:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -76,7 +87,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 }
 
-    );
+);
 
 var app = builder.Build();
 
@@ -87,6 +98,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
 app.UseMiddleware<GlobalExceptionMiddleware>(); // Global Exception Handling Middleware
 app.UseAuthentication();
 app.UseAuthorization();
