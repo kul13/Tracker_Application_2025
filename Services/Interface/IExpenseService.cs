@@ -1,11 +1,16 @@
 ﻿using ExpenseTracker.Api.DTOs;
 using ExpenseTracker.Api.Models;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ExpenseTracker.Api.Services.Interface
 {
     public interface IExpenseService
     {
         Task<List<Expense>> GetAllAsync();
+
+        Task<List<Expense>> GetAllAsyncByUserId(int Userid);
+
+        Task<PagedResult<Expense>> GetPagedByUserIdAsync(int userId,int page,int pageSize);
         Task AddAsync(Expense expense, string? ItemName);
         Task<Expense?> GetByIdAsync(int id);
         Task<bool> UpdateAsync(int id, Expense expense);

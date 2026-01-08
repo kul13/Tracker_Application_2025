@@ -9,10 +9,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ExpenseTracker.Api.Services.Repository
 {
-    public class ExpenseService : IExpenseService 
+    public class ExpenseService : IExpenseService
     {
         public readonly AppDbContext _context;
-      
+
         public ExpenseService(AppDbContext context)
         {
             _context = context;
@@ -26,7 +26,7 @@ namespace ExpenseTracker.Api.Services.Repository
             .Include(e => e.Item)
             .ToListAsync();
         }
-        public async Task AddAsync(Expense expense , string? ItemName)
+        public async Task AddAsync(Expense expense, string? ItemName)
         {
             //if (!string.IsNullOrWhiteSpace(ItemName))
             //{
@@ -114,7 +114,7 @@ namespace ExpenseTracker.Api.Services.Repository
             {
                 query = query.Where(e => e.Date <= toDate.Value);
             }
-             if (categoryId.HasValue)
+            if (categoryId.HasValue)
             {
                 query = query.Where(e => e.CategoryId == categoryId);
             }
@@ -129,7 +129,7 @@ namespace ExpenseTracker.Api.Services.Repository
             return await query.ToListAsync();
         }
 
-        public async  Task<List<Category>> GetAllCategoriesAsync()
+        public async Task<List<Category>> GetAllCategoriesAsync()
         {
             return await _context.Categories
                .Select(c => new Category
@@ -150,6 +150,49 @@ namespace ExpenseTracker.Api.Services.Repository
                     CategoryId = i.CategoryId
                 })
                 .ToListAsync();
+        }
+        public async Task<List<Expense>> GetAllAsyncByUserId(int Userid)
+        {
+            return await _context.Expenses
+            .Where(e => e.UserId == Userid)
+            .Include(e => e.User)
+            .Include(e => e.Category)
+            .Include(e => e.Item)
+            .ToListAsync();
+
+        }
+        public async Task<PagedResult<Expense>> GetPagedByUserIdAsync(int userId, int page, int pageSize)
+        {
+            var query = _context.Expenses
+            .Where(e => e.UserId == userId)
+            .OrderByDescending(e => e.Date);
+
+            var total = await query.CountAsync();
+            List<Expense> items;
+            if (pageSize == 0)
+            {
+                items = await query
+                    .Include(e => e.Category)
+                    .Include(e => e.Item)
+                    .ToListAsync();
+            }
+            else
+            {
+                items = await query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Include(e => e.Category)
+                    .Include(e => e.Item)
+                    .ToListAsync();
+            }
+
+            return new PagedResult<Expense>
+            {
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = total,
+                Data = items
+            };
         }
     }
 }

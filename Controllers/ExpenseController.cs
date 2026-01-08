@@ -57,7 +57,7 @@ namespace ExpenseTracker.Api.Controllers
                 Notes = dtos.Notes,
                 UserId = userId
             };
-            await _service.AddAsync(expense,dtos.ItemName);
+            await _service.AddAsync(expense, dtos.ItemName);
             return Ok("Expense Added");
         }
         [HttpPut("{id}")]
@@ -105,7 +105,7 @@ namespace ExpenseTracker.Api.Controllers
                 Amount = dto.Amount,
                 Date = dto.Date,
                 CategoryId = dto.CategoryId,
-                ItemId = dto.ItemId,   
+                ItemId = dto.ItemId,
                 Notes = dto.Notes,
                 UserId = userId,
                 TotalAmount = dto.TotalAmount
@@ -154,6 +154,37 @@ namespace ExpenseTracker.Api.Controllers
         {
             var items = await _service.GetByCategoryIdAsync(categoryId);
             return Ok(items);
+        }
+        [HttpGet("userexpenses")]
+        public async Task<IActionResult> GetAllExpensesByUserId(int page = 1,int pageSize = 10)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
+                         ?? User.FindFirst(JwtRegisteredClaimNames.Sub);
+            if (userIdClaim == null)
+                return Unauthorized();
+            int userId = int.Parse(userIdClaim.Value);
+            var pagedExpenses = await _service.GetPagedByUserIdAsync(userId, page, pageSize);
+
+            // Map the Items property of the paged result
+            var response = pagedExpenses.Data.Select(e => new AuditExpenseDto
+            {
+                Id = e.Id,
+                CategoryId = e.CategoryId,
+                CategoryName = e.Category!.Name!,
+                ItemId = (int)e.ItemId!,
+                ItemName = e.Item?.Name ?? "N/A",
+                Amount = e.Amount,
+                Date= e.Date,
+                Notes = e.Notes ?? ""
+            }).ToList();
+
+            return Ok(new
+            {
+                data = response,
+                totalCount = pagedExpenses.TotalCount
+            });
+
+            
         }
     }
 }
